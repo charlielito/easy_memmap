@@ -2,10 +2,12 @@ import numpy as np
 import os
 import re
 import time
+import json
+
 
 class EasyMemmap(object):
     PREFIX = "easy_memmap"
-    CONF = "shape"
+    CONF = "shape"  
     DATA = "data"
     NUMPY_TYPES = [np.int8, np.int16, np.int32, np.int64,
                   np.uint8, np.uint16, np.uint32, np.uint64,
@@ -146,7 +148,6 @@ class EasyMemmap(object):
         else:
             return self.memmap_file
 
-import json
 
 # Class for handling RGB Images (3D imarrays only) stack together with a meta data on them (labels)
 class MultiImagesMemmap(EasyMemmap):
