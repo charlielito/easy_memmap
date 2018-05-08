@@ -1,13 +1,3 @@
-import numpy as np
+from __future__ import absolute_import, print_function
+from .easy_mapper import EasyMemmap, MultiImagesMemmap
 
-class EasyMemmap(object):
-    def __init__(self, memmap_path = "/tmp"):
-        super(EasyMemmap,self).__init__()
-        self.memmap_path = memmap_path
-
-    
-    def write(self, image):
-        pass
-
-    def read(self, file):
-        pass
