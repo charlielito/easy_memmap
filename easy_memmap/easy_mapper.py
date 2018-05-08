@@ -101,8 +101,9 @@ class EasyMemmap(object):
             return False
 
     # Waits until the file is available or a timer is out
-    def wait_until_available(self, name, time2wait = None):
+    def wait_until_available(self, name = None, time2wait = None):
         time2wait = time2wait if time2wait is not None else 1000000 #very big number
+        name = self.name if name is None else name
         timer = time.time()
         while not self.set_name(name) and (time.time() - timer < time2wait):
             time.sleep(2)
