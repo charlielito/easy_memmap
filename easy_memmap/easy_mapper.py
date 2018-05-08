@@ -165,7 +165,8 @@ class MultiImagesMemmap(EasyMemmap):
 
         else:
             if self.name is not None:
-                self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) ) #read camera number configuration
+                if self._check_file(self.name):
+                    self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) ) #read camera number configuration
 
 
     def _get_image(self, number):
