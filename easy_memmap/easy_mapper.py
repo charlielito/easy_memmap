@@ -153,9 +153,10 @@ class EasyMemmap(object):
 class MultiImagesMemmap(EasyMemmap):
     LABELS_FILENAME = "meta.json"
     
-    def __init__(self, mode, labels = None, memmap_path = "/tmp", name = None):
+    def __init__(self, mode, labels = None, memmap_path = "/tmp", name = None, axis = 2):
         super(MultiImagesMemmap,self).__init__(mode, memmap_path, name)
         self.labels_dict =  None
+        self.axis = axis
         
         if self.mode == "w":
             if not labels:
@@ -174,7 +175,14 @@ class MultiImagesMemmap(EasyMemmap):
         if self.memmap_file is None:
             return None
         else:
-            return self.memmap_file[:,:,number*3:number*3+3]
+            if self.axis = 2:
+                return self.memmap_file[:,:,number*3:number*3+3]
+            elif self.axis = 1:
+                return self.memmap_file[:,number*3:number*3+3,:]
+            elif self.axis = 0:
+                return self.memmap_file[number*3:number*3+3,:,:]
+            else:
+                return None
 
     # Overload set name method to load the config.json or meta data for images
     def set_name(self, name):
