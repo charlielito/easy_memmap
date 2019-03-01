@@ -156,31 +156,43 @@ class MultiImagesMemmap(EasyMemmap):
     def __init__(self, mode, labels = None, memmap_path = "/tmp", name = None, axis = 2):
         super(MultiImagesMemmap,self).__init__(mode, memmap_path, name)
         self.labels_dict =  None
-        self.axis = axis
         
         if self.mode == "w":
+            if not (0<=axis<=2) and isinstance(axis, int):
+                raise RuntimeError("Axis must be an integer value between 0 and 2 [0-2]")
+
+            self.axis = axis
+
             if not labels:
                 raise RuntimeError("Labels string list must be provided in initialization")
+            
             else:
                 self.labels_dict = {key:value for value,key in enumerate(labels)}
                 self.labels = labels
+                self.num_labels = len(labels)
 
         else:
             if self.name is not None:
                 if self._check_file(self.name):
                     self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) ) #read camera number configuration
+                    # remove axis element from dict and save the result
+                    self.axis = self.labels_dict.pop("axis")
+                    self.num_labels = len(self.labels_dict.values())
 
 
     def _get_image(self, number):
         if self.memmap_file is None:
             return None
         else:
-            if self.axis = 2:
-                return self.memmap_file[:,:,number*3:number*3+3]
-            elif self.axis = 1:
-                return self.memmap_file[:,number*3:number*3+3,:]
-            elif self.axis = 0:
-                return self.memmap_file[number*3:number*3+3,:,:]
+            axis_dim = self.memmap_file.shape[self.axis]
+            base_dim = axis_dim//self.num_labels
+
+            if self.axis == 2:
+                return self.memmap_file[:,:,number*base_dim:number*base_dim+base_dim]
+            elif self.axis == 1:
+                return self.memmap_file[:,number*base_dim:number*base_dim+base_dim,:]
+            elif self.axis == 0:
+                return self.memmap_file[number*base_dim:number*base_dim+base_dim,:,:]
             else:
                 return None
 
@@ -213,11 +225,13 @@ class MultiImagesMemmap(EasyMemmap):
     def _init_memmap_w(self, data):
         EasyMemmap._init_memmap_w(self, data)
 
-        _, _, c = self.memmap_file.shape
-        number_images = c/3 # RGB images
-        if len(self.labels) > number_images: #elminate last labels
-            self.labels = self.labels[:number_images]
-            self.labels_dict = {key:value for value,key in enumerate(self.labels)}
+        # axis_len = self.memmap_file.shape[self.axis]
+        # number_images = axis_len/self.num_labels # 
+        # if len(self.labels) > number_images: #elminate last labels
+        #     self.labels = self.labels[:number_images]
+        #     self.labels_dict = {key:value for value,key in enumerate(self.labels)}
 
         with open(os.path.join(self.get_full_name(), self.LABELS_FILENAME),'w') as fp: # save mapp dict as a Json
+            # save also axis in config
+            self.labels_dict.update(dict(axis=self.axis))
             json.dump(self.labels_dict,fp)
