@@ -225,8 +225,19 @@ class MultiImagesMemmap(EasyMemmap):
     def _init_memmap_w(self, data):
         EasyMemmap._init_memmap_w(self, data)
 
-        # axis_len = self.memmap_file.shape[self.axis]
-        # number_images = axis_len/self.num_labels # 
+        axis_len = self.memmap_file.shape[self.axis]
+        # If number of images does not fit with the shape of the data, raise error
+        if axis_len%self.num_labels != 0:
+            raise RuntimeError(
+                """
+                Number of labels ({}) don't match in axis {} of data shape {}. 
+                Number of images must match in the corresponding axis 
+                of the data structure.  
+                """.format(self.num_labels, self.axis, str(self.memmap_file.shape))
+            )
+
+        # DEPRECATED: before just dropped to fit the number of images
+        # number_images = axis_len/self.num_labels     
         # if len(self.labels) > number_images: #elminate last labels
         #     self.labels = self.labels[:number_images]
         #     self.labels_dict = {key:value for value,key in enumerate(self.labels)}
