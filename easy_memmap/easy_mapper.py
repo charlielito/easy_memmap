@@ -174,10 +174,7 @@ class MultiImagesMemmap(EasyMemmap):
         else:
             if self.name is not None:
                 if self._check_file(self.name):
-                    self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) ) #read camera number configuration
-                    # remove axis element from dict and save the result
-                    self.axis = self.labels_dict.pop("axis")
-                    self.num_labels = len(self.labels_dict.values())
+                    self._load_labels()
 
 
     def _get_image(self, number):
@@ -196,10 +193,16 @@ class MultiImagesMemmap(EasyMemmap):
             else:
                 return None
 
+    def _load_labels(self):
+        self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) ) #read camera number configuration
+        # remove axis element from dict and save the result
+        self.axis = self.labels_dict.pop("axis")
+        self.num_labels = len(self.labels_dict.values()) 
+
     # Overload set name method to load the config.json or meta data for images
     def set_name(self, name):
         if EasyMemmap.set_name(self, name):
-            self.labels_dict = json.load(open(os.path.join(self.get_full_name(),self.LABELS_FILENAME)) )
+            self._load_labels()
             return True
         else:
             return False
